@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { X } from "lucide-react"; // Icono (si ya usas lucide-react, si no lo quitas)
 
 type Props = {
   open: boolean;
@@ -19,14 +20,29 @@ export default function ConfirmAgendarModal({ open, fechaTexto, onConfirm, onVie
   }, [open]);
 
   return (
-    <dialog ref={ref} className="rounded-xl p-0 w-[95%] max-w-sm" onClose={onClose}>
-      <div className="p-4 border-b">
+    <dialog
+      ref={ref}
+      className="rounded-xl p-0 w-[95%] max-w-sm shadow-xl"
+      onClose={onClose}
+    >
+      {/* Header con título y botón de cerrar */}
+      <div className="flex items-center justify-between p-4 border-b">
         <h3 className="text-lg font-semibold">Confirmar</h3>
+        <button
+          onClick={onClose}
+          className="p-1 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition"
+          aria-label="Cerrar"
+        >
+          <X size={18} />
+        </button>
       </div>
+
+      {/* Contenido */}
       <div className="p-4 space-y-4">
         <p className="text-sm">
           ¿Desea agendar una cita para <b>{fechaTexto || "—"}</b>?
         </p>
+
         <div className="flex justify-end gap-2">
           <button
             type="button"
