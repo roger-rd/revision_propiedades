@@ -9,6 +9,9 @@ export default function Informes() {
   const { empresa } = useAuth();
   const empresaId = empresa?.id;
 
+const getBase = () =>
+  (api.defaults.baseURL ?? '').replace(/\/+$/, '');
+
   useEffect(() => {
     if (!empresaId) return;
 
@@ -19,13 +22,25 @@ export default function Informes() {
       .catch(err => console.error('Error cargando solicitudes', err));
   }, [empresaId]);
 
-  const generarInforme = (id: number) => {
-    window.open(`http://localhost:3001/api/informes/${id}/generar`, '_blank');
-  };
+      const generarInforme = (id: number) => {
+      const base = getBase();
+      if (!base) {
+        console.error('baseURL no definida. Revisa VITE_API_URL');
+        return;
+      }
+      const url = `${base}/informes/${id}/generar`;
+      window.open(url, '_blank', 'noopener,noreferrer');
+    };
 
   const generarInformeGold = (id: number) => {
-  window.open(`http://localhost:3001/api/informes/${id}/generar?template=gold`, '_blank');
-};
+    const base = getBase();
+    if (!base) {
+      console.error('baseURL no definida. Revisa VITE_API_URL');
+      return;
+    }
+    const url = `${base}/informes/${id}/generar?template=gold`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
 
   return (
     <div className="p-6">
