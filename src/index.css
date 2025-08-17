@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.input {
+    @apply w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-primary;
+  }
+
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-5px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+    100% { transform: translateX(0); }
+  }
+  
+  .animate-shake {
+    animation: shake 0.4s ease;
+  }
+
+  :root {
+  --primary: #0ea5e9; 
+  --secondary: #64748b;
+}
+.bg-primary { background-color: var(--primary) !important; }
+.bg-secondary { background-color: var(--secondary) !important; }
+.text-primary { color: var(--primary) !important; }
+.text-secondary { color: var(--secondary) !important; }

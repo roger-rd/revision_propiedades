@@ -1,0 +1,20 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# SPA fallback (React Router)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Proxy a tu backend cuando esté público (descomenta y cambia la URL)
+# [[redirects]]
+#   from = "/api/*"
+#   to = "https://revision-propiedades-bk-1.onrender.com/api/:splat"
+#   status = 200
+#   force = true
+
+# (Opcional) fija la versión de Node de tu build
+[build.environment]
+  NODE_VERSION = "20"
