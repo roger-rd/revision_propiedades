@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { X } from "lucide-react"; // Icono (si ya usas lucide-react, si no lo quitas)
+import { X } from "lucide-react";
 
 type Props = {
   open: boolean;
@@ -19,10 +19,33 @@ export default function ConfirmAgendarModal({ open, fechaTexto, onConfirm, onVie
     if (!open && dlg.open) dlg.close();
   }, [open]);
 
+  // Manejar clic fuera (backdrop)
+  useEffect(() => {
+    const dlg = ref.current;
+    if (!dlg) return;
+
+    const handleClick = (e: MouseEvent) => {
+      const dialog = dlg;
+      const rect = dialog.getBoundingClientRect();
+      const clickedInDialog =
+        e.clientX >= rect.left &&
+        e.clientX <= rect.right &&
+        e.clientY >= rect.top &&
+        e.clientY <= rect.bottom;
+
+      if (!clickedInDialog) {
+        onClose?.();
+      }
+    };
+
+    dlg.addEventListener("click", handleClick);
+    return () => dlg.removeEventListener("click", handleClick);
+  }, [onClose]);
+
   return (
     <dialog
       ref={ref}
-      className="rounded-xl p-0 w-[95%] max-w-sm shadow-xl"
+      className="rounded-xl p-0 w-[95%] max-w-sm shadow-xl backdrop:bg-black/40"
       onClose={onClose}
     >
       {/* Header con título y botón de cerrar */}
