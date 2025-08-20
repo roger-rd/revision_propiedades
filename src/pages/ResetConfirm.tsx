@@ -14,6 +14,7 @@ export default function ResetConfirm() {
   useEffect(() => {
     if (!token) {
       showToast("Token faltante", "error");
+      navigate("/restablecer");
       return;
     }
     // Validación opcional (puedes comentarla si no usas el endpoint)
@@ -21,10 +22,11 @@ export default function ResetConfirm() {
       try {
         await api.get(`/auth/reset/validate`, { params: { token } });
       } catch {
-        showToast("Enlace inválido o expirado", "error");
+        showToast("Enlace inválido o expirado ❌", "error");
+        navigate("/restablecer")
       }
     })();
-  }, [token]);
+  }, [token, navigate]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
