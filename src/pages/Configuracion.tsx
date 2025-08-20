@@ -118,7 +118,7 @@ export default function Configuracion() {
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       <header className="mb-4 sm:mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold">Configuración</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-primary">Configuración</h1>
       </header>
 
       {/* Tabs: mobile-first, sticky y scroll horizontal cuando no caben */}

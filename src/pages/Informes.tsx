@@ -50,7 +50,7 @@ export default function Informes() {
   return (
     <div className="p-4 sm:p-6">
       <div className="flex items-center justify-between gap-2 mb-4">
-        <h1 className="text-xl sm:text-2xl font-bold">📄 Informes disponibles</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-primary">📄 Informes disponibles</h1>
       </div>
 
       {/* Estado: cargando */}
@@ -78,7 +78,7 @@ export default function Informes() {
 
       {/* MOBILE (≤ md): tarjetas */}
       {!loading && !error && solicitudes.length > 0 && (
-        <div className="grid grid-cols-1 gap-4 md:hidden">
+        <div className="grid grid-cols-1 gap-4 lg:hidden">
           {solicitudes.map((s) => (
             <div
               key={s.id}
@@ -127,62 +127,74 @@ export default function Informes() {
         </div>
       )}
 
-      {/* DESKTOP (≥ md): tabla con scroll horizontal seguro */}
+      {/* DESKTOP (≥ lg): tabla con scroll horizontal seguro */}
       {!loading && !error && solicitudes.length > 0 && (
-        <div className="hidden md:block">
-          <div className="overflow-x-auto rounded-lg border bg-white">
-            <table className="min-w-[800px] w-full text-left">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="py-3 px-4 text-sm font-semibold text-gray-700">Cliente</th>
-                  <th className="py-3 px-4 text-sm font-semibold text-gray-700">RUT</th>
-                  <th className="py-3 px-4 text-sm font-semibold text-gray-700">Dirección</th>
-                  <th className="py-3 px-4 text-sm font-semibold text-gray-700">Estado</th>
-                  <th className="py-3 px-4 text-sm font-semibold text-gray-700">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {solicitudes.map((s, idx) => (
-                  <tr
-                    key={s.id}
-                    className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
-                  >
-                    <td className="py-3 px-4 align-top whitespace-nowrap">{s.cliente.nombre}</td>
-                    <td className="py-3 px-4 align-top whitespace-nowrap">{s.cliente.rut}</td>
-                    <td className="py-3 px-4 align-top">
-                      <div className="max-w-[380px] truncate" title={s.direccion}>
-                        {s.direccion}
-                      </div>
-                    </td>
-                    <td className="py-3 px-4 align-top">
-                      <span className="bg-gray-100 text-gray-700 rounded-full px-2 py-1 text-xs font-medium">
-                        {s.estado}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 align-top">
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          className="inline-flex justify-center items-center bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700 text-sm"
-                          onClick={() => generarInforme(s.id)}
-                          aria-label={`Generar informe clásico de ${s.cliente.nombre}`}
-                        >
-                          Informe clásico
-                        </button>
-                        <button
-                          className="inline-flex justify-center items-center bg-emerald-600 text-white px-3 py-2 rounded-md hover:bg-emerald-700 text-sm"
-                          onClick={() => generarInformeGold(s.id)}
-                          title="Plantilla tipo GOLD"
-                          aria-label={`Generar informe GOLD de ${s.cliente.nombre}`}
-                        >
-                          Informe GOLD
-                        </button>
-                      </div>
-                    </td>
+        <div className="hidden lg:block">
+          <section className="rounded-xl border bg-white shadow-sm">
+            {/* Contenedor con altura limitada y scroll interno */}
+            <div className="overflow-auto max-h-[60vh]">
+              <table className="table-fixed w-full text-left text-[13px] leading-tight">
+                {/* Anchos de columna para evitar que crezcan de más */}
+                <colgroup>
+                  <col className="w-[24%]" />
+                  <col className="w-[14%]" />
+                  <col className="w-[36%]" />
+                  <col className="w-[12%]" />
+                  <col className="w-[14%]" />
+                </colgroup>
+
+                <thead className="bg-gray-50 sticky top-0 z-10">
+                  <tr>
+                    <th className="py-2.5 px-3 font-semibold text-gray-700">Cliente</th>
+                    <th className="py-2.5 px-3 font-semibold text-gray-700">RUT</th>
+                    <th className="py-2.5 px-3 font-semibold text-gray-700">Dirección</th>
+                    <th className="py-2.5 px-3 font-semibold text-gray-700">Estado</th>
+                    <th className="py-2.5 px-3 font-semibold text-gray-700">Acciones</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+
+                <tbody>
+                  {solicitudes.map((s, idx) => (
+                    <tr key={s.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                      <td className="py-2 px-3 align-top whitespace-nowrap">{s.cliente.nombre}</td>
+                      <td className="py-2 px-3 align-top whitespace-nowrap">{s.cliente.rut}</td>
+                      <td className="py-2 px-3 align-top">
+                        {/* clamp para 1 línea, con tooltip completo */}
+                        <div className="truncate" title={s.direccion}>{s.direccion}</div>
+                      </td>
+                      <td className="py-2 px-3 align-top">
+                        <span className="bg-gray-100 text-gray-700 rounded-full px-2 py-0.5 text-[11px] font-medium">
+                          {s.estado}
+                        </span>
+                      </td>
+                      <td className="py-2 px-3 align-top">
+                        <div className="flex flex-wrap gap-1.5">
+                          <button
+                            className="inline-flex items-center justify-center bg-primary text-white px-2.5 py-1.5 rounded-md hover:bg-blue-700 text-[12px]"
+                            onClick={() => generarInforme(s.id)}
+                            aria-label={`Generar informe clásico de ${s.cliente.nombre}`}
+                          >
+                            Clásico
+                          </button>
+                          <button
+                            className="inline-flex justify-center items-center bg-secondary text-white px-3 py-0.5 rounded-md hover:bg-emerald-700 text-sm"
+                            onClick={() => generarInformeGold(s.id)}
+                            title="Plantilla tipo GOLD"
+                            aria-label={`Generar informe GOLD de ${s.cliente.nombre}`}
+                          >
+                            GOLD
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Footer opcional */}
+            {/* <div className="px-3 py-2 border-t text-xs text-gray-500">Mostrando X de Y</div> */}
+          </section>
         </div>
       )}
     </div>
