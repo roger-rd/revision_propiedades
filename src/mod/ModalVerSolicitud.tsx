@@ -1,6 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+// /* eslint-disable @typescript-eslint/no-explicit-any */
 // import { ChangeEvent, Fragment, useState } from "react";
-// import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild, Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/react";
+// import {
+//   Dialog,
+//   DialogPanel,
+//   DialogTitle,
+//   Transition,
+//   TransitionChild,
+//   Listbox,
+//   ListboxButton,
+//   ListboxOption,
+//   ListboxOptions,
+// } from "@headlessui/react";
 // import { ChevronsUpDown, Check, ChevronUp, ChevronDown } from "lucide-react";
 // import GaleriaImagenes from "../components/GaleriaImagenes";
 // import { ModalProps } from "../interface/solicitudesInterface";
@@ -14,12 +25,11 @@
 //   solicitudId,
 //   espacios,
 //   setEspacios,
-//   onEliminar, 
+//   onEliminar,
 // }: ModalProps) {
 //   const [espacioAbierto, setEspacioAbierto] = useState<number | null>(null);
-//   const [espacioAEliminar, setEspacioAEliminar] = useState<number | null>(null); // index de espacio a eliminar
-//   const [openEliminarSolicitud, setOpenEliminarSolicitud] = useState(false);      // abrir modal eliminar solicitud
-//    // Observación a eliminar: guardamos indices para saber cuál borrar
+//   const [espacioAEliminar, setEspacioAEliminar] = useState<number | null>(null);
+//   const [openEliminarSolicitud, setOpenEliminarSolicitud] = useState(false);
 //   const [observacionAEliminar, setObservacionAEliminar] = useState<{
 //     espacioIndex: number;
 //     obsIndex: number;
@@ -157,6 +167,63 @@
 //     setEspacios(copia);
 //   };
 
+//   // 👉 Nuevo: eliminar foto ya persistida (llama al back y actualiza estado)
+//   const eliminarFotoPersistida = async (espacioIndex: number, obsIndex: number, fotoIndex: number) => {
+//     const foto: any = espacios[espacioIndex]?.observaciones[obsIndex]?.fotos[fotoIndex];
+//     if (!foto) return;
+
+//     const fotoId =
+//       foto?.id ??
+//       foto?.id_foto ??
+//       foto?.foto_id ??
+//       foto?.id_fotos_observacion ??
+//       null;
+
+//     const ok = window.confirm("¿Eliminar esta foto definitivamente?");
+//     if (!ok) return;
+
+//     try {
+//       if (fotoId) {
+//         await api.delete(`/fotos-observacion/${fotoId}`);
+//       } else if (foto?.url_foto) {
+//         await api.delete(`/fotos-observacion/by-url`, {
+//           data: { url_foto: foto.url_foto },
+//           headers: { 'Content-Type': 'application/json' },
+//         });
+//       } else {
+//         showToast("❌ No se encontró el ID/URL de la foto", "error");
+//         return;
+//       }
+//     } catch (err: any) {
+//       // Fallback si /:id falló con 500
+//       if (foto?.url_foto) {
+//         try {
+//           await api.delete(`/fotos-observacion/by-url`, {
+//             data: { url_foto: foto.url_foto },
+//             headers: { 'Content-Type': 'application/json' },
+//           });
+//         } catch (e) {
+//           console.error(e);
+//           showToast("❌ Error al eliminar foto", "error");
+//           return;
+//         }
+//       } else {
+//         console.error(err);
+//         showToast("❌ Error al eliminar foto", "error");
+//         return;
+//       }
+//     }
+
+//     // Quita de UI
+//     setEspacios((prev) => {
+//       const copia = [...prev];
+//       copia[espacioIndex].observaciones[obsIndex].fotos.splice(fotoIndex, 1);
+//       return copia;
+//     });
+//     showToast("🗑️ Foto eliminada", "success");
+//   };
+
+
 //   const guardarOEditarObservacion = async (espacioIndex: number, obsIndex: number) => {
 //     const obsActual = espacios[espacioIndex].observaciones[obsIndex];
 
@@ -213,11 +280,20 @@
 
 //         try {
 //           const res = await api.post("/fotos-observacion/archivo", formData, {
+            
 //             headers: { "Content-Type": "multipart/form-data" },
+            
 //           });
 
-//           const copia = [...espacios];
-//           copia[espacioIndex].observaciones[obsIndex].fotos.push({ url_foto: res.data.url_foto });
+//           console.log("UP FOTO RES ===>", res.data);
+
+//          const copia = [...espacios];
+//           copia[espacioIndex].observaciones[obsIndex].fotos.push({
+//             // intenta varias claves comunes por si el back devuelve otro nombre
+//             id: res?.data?.id ?? res?.data?.foto?.id ?? res?.data?.id_foto ?? res?.data?.foto_id,
+//             url_foto: res?.data?.url_foto ?? res?.data?.foto?.url_foto,
+//             id_public: res?.data?.id_public ?? res?.data?.foto?.id_public,
+//           });
 //           copia[espacioIndex].observaciones[obsIndex].imagen = null;
 //           setEspacios(copia);
 
@@ -238,15 +314,13 @@
 //     toggleModoEdicion(espacioIndex, obsIndex);
 //   };
 
-//     // Abre el modal de confirmación para eliminar una observación
+//   // Abre el modal de confirmación para eliminar una observación
 //   const abrirEliminarObservacion = (espacioIndex: number, obsIndex: number, e?: React.MouseEvent) => {
-//     // Quita foco del botón que dispara (evita warning con modales anidados)
 //     (e?.currentTarget as HTMLButtonElement | undefined)?.blur();
-//     // Abre en el siguiente frame
 //     requestAnimationFrame(() => setObservacionAEliminar({ espacioIndex, obsIndex }));
 //   };
 
-//    // Confirmación de eliminar observación (con API si tiene id, o solo front)
+//   // Confirmación de eliminar observación (con API si tiene id, o solo front)
 //   const confirmarEliminarObservacion = async () => {
 //     if (!observacionAEliminar) return;
 //     const { espacioIndex, obsIndex } = observacionAEliminar;
@@ -273,7 +347,6 @@
 //       setObservacionAEliminar(null);
 //     }
 //   };
-
 
 //   return (
 //     <>
@@ -374,7 +447,11 @@
 //                               disabled={!obs.modoEdicion}
 //                             >
 //                               <div className="relative mb-2">
-//                                 <ListboxButton className={`w-full border rounded px-4 py-2 text-left text-sm ${obs.modoEdicion ? "bg-white" : "bg-gray-100 text-gray-500"}`}>
+//                                 <ListboxButton
+//                                   className={`w-full border rounded px-4 py-2 text-left text-sm ${
+//                                     obs.modoEdicion ? "bg-white" : "bg-gray-100 text-gray-500"
+//                                   }`}
+//                                 >
 //                                   <span className="capitalize">{obs.estado}</span>
 //                                   <span className="absolute inset-y-0 right-0 flex items-center pr-3">
 //                                     <ChevronsUpDown className="w-4 h-4 text-gray-400" />
@@ -393,9 +470,7 @@
 //                                     >
 //                                       {({ selected }) => (
 //                                         <div className="flex justify-between items-center">
-//                                           <span className={selected ? "font-medium" : "font-normal"}>
-//                                             {estado}
-//                                           </span>
+//                                           <span className={selected ? "font-medium" : "font-normal"}>{estado}</span>
 //                                           {selected && <Check className="w-4 h-4 text-white" />}
 //                                         </div>
 //                                       )}
@@ -434,28 +509,24 @@
 //                               </div>
 //                             )}
 
-//                             {obs.fotos.length > 0 && <GaleriaImagenes imagenes={obs.fotos} />}
+//                             {/* 👇 Ahora la galería muestra la “X” SOLO cuando está en modo edición */}
+//                             <GaleriaImagenes
+//                               imagenes={obs.fotos}
+//                               editable={obs.modoEdicion}
+//                               onDelete={(fotoIndex) => eliminarFotoPersistida(i, j, fotoIndex)}
+//                             />
 
 //                             <div className="flex gap-2 mt-2">
 //                               <button
 //                                 onClick={() => guardarOEditarObservacion(i, j)}
 //                                 disabled={loadingObservacion}
 //                                 className={`${
-//                                   obs.modoEdicion
-//                                     ? "bg-green-600 hover:bg-green-700"
-//                                     : "bg-yellow-500 hover:bg-yellow-600"
+//                                   obs.modoEdicion ? "bg-green-600 hover:bg-green-700" : "bg-yellow-500 hover:bg-yellow-600"
 //                                 } text-white px-2 py-1 rounded text-sm ${loadingObservacion ? "opacity-60 cursor-not-allowed" : ""}`}
 //                               >
 //                                 {loadingObservacion ? "Guardando..." : obs.modoEdicion ? "💾 Guardar" : "✏️ Editar"}
 //                               </button>
 
-//                               {/* <button
-//                                 onClick={() => eliminarObservacionConConfirmacion(i, j)}
-//                                 disabled={loadingObservacion}
-//                                 className="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600"
-//                               >
-//                                 🗑️ Eliminar
-//                               </button> */}
 //                               <button
 //                                 onClick={(e) => abrirEliminarObservacion(i, j, e)}
 //                                 disabled={loadingObservacion}
@@ -535,6 +606,7 @@
 //         mensaje="¿Seguro que deseas eliminar esta solicitud?"
 //         confirmText="Eliminar solicitud"
 //       />
+
 //       {/* Modal eliminar OBSERVACIÓN */}
 //       <ModalConfirmacionEliminar
 //         open={observacionAEliminar !== null}
@@ -547,6 +619,7 @@
 //     </>
 //   );
 // }
+
 import { ChangeEvent, Fragment, useState } from "react";
 import {
   Dialog,
@@ -577,10 +650,10 @@ export default function ModalVerSolicitud({
   const [espacioAbierto, setEspacioAbierto] = useState<number | null>(null);
   const [espacioAEliminar, setEspacioAEliminar] = useState<number | null>(null);
   const [openEliminarSolicitud, setOpenEliminarSolicitud] = useState(false);
-  const [observacionAEliminar, setObservacionAEliminar] = useState<{
-    espacioIndex: number;
-    obsIndex: number;
-  } | null>(null);
+  const [observacionAEliminar, setObservacionAEliminar] = useState<{ espacioIndex: number; obsIndex: number } | null>(null);
+
+  // 👇 NUEVO: estado para confirmar eliminación de FOTO
+  const [fotoAEliminar, setFotoAEliminar] = useState<{ espacioIndex: number; obsIndex: number; fotoIndex: number } | null>(null);
 
   const [loadingObservacion, setLoadingObservacion] = useState(false);
 
@@ -714,44 +787,75 @@ export default function ModalVerSolicitud({
     setEspacios(copia);
   };
 
-  // 👉 Nuevo: eliminar foto ya persistida (llama al back y actualiza estado)
-const eliminarFotoPersistida = async (espacioIndex: number, obsIndex: number, fotoIndex: number) => {
-  const foto: any = espacios[espacioIndex]?.observaciones[obsIndex]?.fotos[fotoIndex];
+  // 👉 abrir modal para eliminar FOTO
+  const abrirEliminarFoto = (espacioIndex: number, obsIndex: number, fotoIndex: number) => {
+    setFotoAEliminar({ espacioIndex, obsIndex, fotoIndex });
+  };
 
-  // intenta varias claves por si la data cargada desde el back usa otro nombre
-  const fotoId =
-    foto?.id ??
-    foto?.id_foto ??
-    foto?.foto_id ??
-    foto?.id_fotos_observacion ??
-    foto?.idFoto ??
-    null;
+  // 👉 confirmar eliminación de FOTO (con fallback por URL)
+  const confirmarEliminarFoto = async () => {
+    if (!fotoAEliminar) return;
+    const { espacioIndex, obsIndex, fotoIndex } = fotoAEliminar;
+    const foto: any = espacios[espacioIndex]?.observaciones[obsIndex]?.fotos[fotoIndex];
+    if (!foto) {
+      setFotoAEliminar(null);
+      return;
+    }
 
-  if (!fotoId) {
-    console.log("⚠️ Foto sin ID =>", foto); // 👈 para depurar
-    showToast("❌ No se encontró el ID de la foto", "error");
-    return;
-  }
+    const fotoId =
+      foto?.id ??
+      foto?.id_foto ??
+      foto?.foto_id ??
+      foto?.id_fotos_observacion ??
+      null;
 
-  try {
-    const ok = window.confirm("¿Eliminar esta foto definitivamente?");
-    if (!ok) return;
+    try {
+      if (fotoId) {
+        await api.delete(`/fotos-observacion/${fotoId}`);
+      } else if (foto?.url_foto) {
+        await api.delete(`/fotos-observacion/by-url`, {
+          data: { url_foto: foto.url_foto },
+          headers: { "Content-Type": "application/json" },
+        });
+      } else {
+        showToast("❌ No se encontró el ID/URL de la foto", "error");
+        setFotoAEliminar(null);
+        return;
+      }
 
-    await api.delete(`/fotos-observacion/${fotoId}`);
+      setEspacios((prev) => {
+        const copia = [...prev];
+        copia[espacioIndex].observaciones[obsIndex].fotos.splice(fotoIndex, 1);
+        return copia;
+      });
 
-    setEspacios((prev) => {
-      const copia = [...prev];
-      copia[espacioIndex].observaciones[obsIndex].fotos.splice(fotoIndex, 1);
-      return copia;
-    });
-
-    showToast("🗑️ Foto eliminada", "success");
-  } catch (err) {
-    console.error(err);
-    showToast("❌ Error al eliminar foto", "error");
-  }
-};
-
+      showToast("🗑️ Foto eliminada", "success");
+    } catch (err: any) {
+      // Fallback por URL si el delete por ID falló en el back
+      if (foto?.url_foto) {
+        try {
+          await api.delete(`/fotos-observacion/by-url`, {
+            data: { url_foto: foto.url_foto },
+            headers: { "Content-Type": "application/json" },
+          });
+          setEspacios((prev) => {
+            const copia = [...prev];
+            copia[espacioIndex].observaciones[obsIndex].fotos.splice(fotoIndex, 1);
+            return copia;
+          });
+          showToast("🗑️ Foto eliminada", "success");
+        } catch (e) {
+          console.error(e);
+          showToast("❌ Error al eliminar foto", "error");
+        }
+      } else {
+        console.error(err);
+        showToast("❌ Error al eliminar foto", "error");
+      }
+    } finally {
+      setFotoAEliminar(null);
+    }
+  };
 
   const guardarOEditarObservacion = async (espacioIndex: number, obsIndex: number) => {
     const obsActual = espacios[espacioIndex].observaciones[obsIndex];
@@ -809,16 +913,12 @@ const eliminarFotoPersistida = async (espacioIndex: number, obsIndex: number, fo
 
         try {
           const res = await api.post("/fotos-observacion/archivo", formData, {
-            
             headers: { "Content-Type": "multipart/form-data" },
-            
           });
 
-          console.log("UP FOTO RES ===>", res.data);
-
-         const copia = [...espacios];
+          const copia = [...espacios];
+          // Guarda también id e id_public para poder borrarla luego
           copia[espacioIndex].observaciones[obsIndex].fotos.push({
-            // intenta varias claves comunes por si el back devuelve otro nombre
             id: res?.data?.id ?? res?.data?.foto?.id ?? res?.data?.id_foto ?? res?.data?.foto_id,
             url_foto: res?.data?.url_foto ?? res?.data?.foto?.url_foto,
             id_public: res?.data?.id_public ?? res?.data?.foto?.id_public,
@@ -919,11 +1019,7 @@ const eliminarFotoPersistida = async (espacioIndex: number, obsIndex: number, fo
                       <span className="font-medium">
                         {espacio.nombre || `Espacio #${i + 1}`}
                       </span>
-                      {espacioAbierto === i ? (
-                        <ChevronUp className="w-4 h-4" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4" />
-                      )}
+                      {espacioAbierto === i ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </button>
 
                     {espacioAbierto === i && (
@@ -941,9 +1037,7 @@ const eliminarFotoPersistida = async (espacioIndex: number, obsIndex: number, fo
                           <button
                             onClick={() => guardarOEditarEspacio(i)}
                             className={`${
-                              espacio.modoEdicion
-                                ? "bg-green-600 hover:bg-green-700"
-                                : "bg-yellow-500 hover:bg-yellow-600"
+                              espacio.modoEdicion ? "bg-green-600 hover:bg-green-700" : "bg-yellow-500 hover:bg-yellow-600"
                             } text-white px-4 py-1 rounded text-sm`}
                           >
                             {espacio.modoEdicion ? "💾 Guardar nombre" : "✏️ Editar"}
@@ -970,16 +1064,10 @@ const eliminarFotoPersistida = async (espacioIndex: number, obsIndex: number, fo
                               className="w-full p-2 border rounded mb-2 text-sm"
                             />
 
-                            <Listbox
-                              value={obs.estado}
-                              onChange={(value) => handleObservacionChange(i, j, "estado", value)}
-                              disabled={!obs.modoEdicion}
-                            >
+                            <Listbox value={obs.estado} onChange={(value) => handleObservacionChange(i, j, "estado", value)} disabled={!obs.modoEdicion}>
                               <div className="relative mb-2">
                                 <ListboxButton
-                                  className={`w-full border rounded px-4 py-2 text-left text-sm ${
-                                    obs.modoEdicion ? "bg-white" : "bg-gray-100 text-gray-500"
-                                  }`}
+                                  className={`w-full border rounded px-4 py-2 text-left text-sm ${obs.modoEdicion ? "bg-white" : "bg-gray-100 text-gray-500"}`}
                                 >
                                   <span className="capitalize">{obs.estado}</span>
                                   <span className="absolute inset-y-0 right-0 flex items-center pr-3">
@@ -992,9 +1080,7 @@ const eliminarFotoPersistida = async (espacioIndex: number, obsIndex: number, fo
                                       key={estado}
                                       value={estado}
                                       className={({ active }) =>
-                                        `cursor-pointer select-none px-4 py-2 ${
-                                          active ? "bg-primary text-white" : "text-gray-900"
-                                        }`
+                                        `cursor-pointer select-none px-4 py-2 ${active ? "bg-primary text-white" : "text-gray-900"}`
                                       }
                                     >
                                       {({ selected }) => (
@@ -1024,11 +1110,7 @@ const eliminarFotoPersistida = async (espacioIndex: number, obsIndex: number, fo
 
                             {obs.imagen && (
                               <div className="relative w-fit">
-                                <img
-                                  src={URL.createObjectURL(obs.imagen)}
-                                  alt="preview"
-                                  className="w-24 h-24 object-cover rounded border"
-                                />
+                                <img src={URL.createObjectURL(obs.imagen)} alt="preview" className="w-24 h-24 object-cover rounded border" />
                                 <button
                                   onClick={() => handleObservacionChange(i, j, "imagen", null)}
                                   className="absolute top-0 right-0 bg-black/60 text-white rounded-full px-2 py-0.5 text-xs hover:bg-red-600"
@@ -1038,11 +1120,11 @@ const eliminarFotoPersistida = async (espacioIndex: number, obsIndex: number, fo
                               </div>
                             )}
 
-                            {/* 👇 Ahora la galería muestra la “X” SOLO cuando está en modo edición */}
+                            {/* Galería con “X” solo cuando está en edición */}
                             <GaleriaImagenes
                               imagenes={obs.fotos}
                               editable={obs.modoEdicion}
-                              onDelete={(fotoIndex) => eliminarFotoPersistida(i, j, fotoIndex)}
+                              onDelete={(fotoIndex) => abrirEliminarFoto(i, j, fotoIndex)}
                             />
 
                             <div className="flex gap-2 mt-2">
@@ -1144,6 +1226,16 @@ const eliminarFotoPersistida = async (espacioIndex: number, obsIndex: number, fo
         titulo="Eliminar observación"
         mensaje="¿Seguro que deseas eliminar esta observación?"
         confirmText="Eliminar observación"
+      />
+
+      {/* 👇 NUEVO: Modal eliminar FOTO */}
+      <ModalConfirmacionEliminar
+        open={fotoAEliminar !== null}
+        onClose={() => setFotoAEliminar(null)}
+        onConfirm={confirmarEliminarFoto}
+        titulo="Eliminar foto"
+        mensaje="¿Seguro que deseas eliminar esta foto?"
+        confirmText="Eliminar foto"
       />
     </>
   );
