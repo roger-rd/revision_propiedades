@@ -21,8 +21,14 @@ export  interface Observacion {
   estado: string;
   elemento: string;
   imagen: File | null;
-  fotos: {url_foto: string}[];
+  fotos: FotoObs[]
   modoEdicion: boolean
+}
+
+export interface FotoObs {
+  id?: number;          
+  url_foto: string;     
+  id_public?: string;   
 }
 
 export interface Espacio {
